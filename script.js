@@ -111,31 +111,55 @@ const contactForm = document.getElementById('contact-form'),
       formStatus = document.getElementById('form-status')
 
 if(contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Simple mock submission logic
         const btn = contactForm.querySelector('button[type="submit"]');
         const originalText = btn.innerHTML;
         
         btn.innerHTML = 'Sending... <i class="fa-solid fa-spinner fa-spin"></i>';
         btn.disabled = true;
         
-        // Simulate network request
-        setTimeout(() => {
-            btn.innerHTML = 'Message Sent <i class="fa-solid fa-check"></i>';
-            contactForm.reset();
-            
-            formStatus.textContent = 'Message sent successfully! I will get back to you soon.';
-            formStatus.className = 'form-status success-msg';
-            
-            // Reset button text after 3 seconds
+        const formData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            subject: document.getElementById('subject').value,
+            message: document.getElementById('message').value
+        };
+
+        try {
+            const response = await fetch('https://portfolio-backend1-j8dv.onrender.com/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                btn.innerHTML = 'Message Sent <i class="fa-solid fa-check"></i>';
+                contactForm.reset();
+                
+                formStatus.textContent = 'Message sent successfully! I will get back to you soon.';
+                formStatus.className = 'form-status success-msg';
+            } else {
+                throw new Error('Failed to send message');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            formStatus.textContent = 'Something went wrong. Please try again later.';
+            formStatus.className = 'form-status error-msg';
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        } finally {
+            // Reset status after 5 seconds
             setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                formStatus.textContent = '';
-            }, 3000);
-            
-        }, 1500);
+                if (formStatus.textContent) {
+                    formStatus.textContent = '';
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            }, 5000);
+        }
     });
 }
