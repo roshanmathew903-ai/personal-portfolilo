@@ -152,13 +152,11 @@ if(contactForm) {
             btn.innerHTML = originalText;
             btn.disabled = false;
         } finally {
-            // Reset status after 5 seconds
+            // Ensure button is re-enabled regardless of error/success
             setTimeout(() => {
-                if (formStatus.textContent) {
-                    formStatus.textContent = '';
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }
+                formStatus.textContent = '';
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }, 5000);
         }
     });
